@@ -1,5 +1,11 @@
 Changes
 =======
 
-0.00001_01 - 16 Oct 2008
+0.00002 - 16 Jan 2009
+    * Refactor backend so that it doesn't hold wasteful attributes.
+    * Add CHI backend.
+    * Attribute key_generator is now called cache_key_generator
+    * Much better test coverage.
+
+0.00001 - 16 Oct 2008
     * Initial release

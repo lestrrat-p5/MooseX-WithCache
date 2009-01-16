@@ -1,10 +1,10 @@
-# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache.pm 88178 2008-10-16T07:50:55.595631Z daisuke  $
+# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache.pm 98665 2009-01-16T08:55:20.144077Z daisuke  $
 
 package MooseX::WithCache;
 use Moose;
 use Moose::Exporter;
 use 5.008;
-our $VERSION   = '0.00001';
+our $VERSION   = '0.00002';
 our $AUTHORITY = 'cpan:DMAKI';
 
 Moose::Exporter->setup_import_methods(
@@ -14,29 +14,24 @@ Moose::Exporter->setup_import_methods(
 no Moose;
 no Moose::Exporter;
 
+my %BACKENDS;
+
 sub with_cache {
     my ($caller, $name, %args) = @_;
-
-    my $meta = $caller->meta;
-
-    # key generator generates the appropriate cache key from given key(s). 
-    $meta->add_attribute(
-        key_generator => (
-            is   => 'rw',
-            does => 'MooseX::WithCache::KeyGenerator',
-        )
-    );
 
     # backend is the actual cache backend. this is the main guy that
     # does the cache-aware  meta protocol munging.
     # we
-    my $backend = $args{backend} || 'Cache::Memcached';
-    my $module  = "MooseX::WithCache::Backend::$backend";
+    my $backend_class = $args{backend} || 'Cache::Memcached';
+    my $module = "MooseX::WithCache::Backend::$backend_class";
 
-    Class::MOP::load_class($module);
-    $module->new(
-        cache_name => $name,
-    )->setup($caller, %args);
+    my $backend = $BACKENDS{ $module };
+    if (! $backend) {
+        Class::MOP::load_class($module);
+        $backend = $module->new();
+        $BACKENDS{ $module } = $backend;
+    }
+    $backend->setup({ %args, cache_name => $name, package => $caller });
 }
 
 1;
@@ -120,8 +115,8 @@ display messages to STDERR.
 Sometimes you want to give compound keys, or simply transform the cache keys
 somehow to normalize them.
 
-MooseX::WithCache supports this through the key_generator attribute.
-The key_generator simply needs to be a MooseX::WithCache::KeyGenerator
+MooseX::WithCache supports this through the cache_key_generator attribute.
+The cache_key_generator simply needs to be a MooseX::WithCache::KeyGenerator
 instance, which accepts whatever key provided, and returns a new key.
 
 For example, if you want to provide complex key that is a perl structure,
@@ -132,7 +127,7 @@ Simply specify it in the constructor:
 
     MyObject->new(
         cache => ...,
-        key_generator => MooseX::WithCache::KeyGenerator::DumpChecksum->new()
+        cache_key_generator => MooseX::WithCache::KeyGenerator::DumpChecksum->new()
     );
 
 =head1 METHODS

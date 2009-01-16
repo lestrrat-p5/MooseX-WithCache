@@ -13,6 +13,7 @@ inc/Test/Exception.pm
 lib/MooseX/WithCache.pm
 lib/MooseX/WithCache/Backend.pm
 lib/MooseX/WithCache/Backend/Cache/Memcached.pm
+lib/MooseX/WithCache/Backend/CHI.pm
 lib/MooseX/WithCache/KeyGenerator.pm
 lib/MooseX/WithCache/KeyGenerator/DumpChecksum.pm
 Makefile.PL
@@ -20,5 +21,6 @@ MANIFEST			This list of files
 META.yml
 t/00_compile.t
 t/02_memcached.t
+t/03_chi.t
 t/99_pod-coverage.t
 t/99_pod.t

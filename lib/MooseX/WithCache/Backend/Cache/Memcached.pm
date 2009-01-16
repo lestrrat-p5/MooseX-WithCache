@@ -1,4 +1,4 @@
-# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache/Backend/Cache/Memcached.pm 88178 2008-10-16T07:50:55.595631Z daisuke  $
+# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache/Backend/Cache/Memcached.pm 98660 2009-01-16T08:37:55.393178Z daisuke  $
 
 package MooseX::WithCache::Backend::Cache::Memcached;
 use Moose;
@@ -17,22 +17,16 @@ around 'build_method_list' => sub {
 has 'cache_get_multi_method' => (
     is => 'rw',
     isa => 'Moose::Meta::Method',
-    lazy => 1,
-    builder => 'build_cache_get_multi_method'
 );
 
 has 'cache_incr_method' => (
     is => 'rw',
     isa => 'Moose::Meta::Method',
-    lazy => 1,
-    builder => 'build_cache_incr_method'
 );
 
 has 'cache_decr_method' => (
     is => 'rw',
     isa => 'Moose::Meta::Method',
-    lazy => 1,
-    builder => 'build_cache_decr_method'
 );
 
 __PACKAGE__->meta->make_immutable;
@@ -40,10 +34,11 @@ __PACKAGE__->meta->make_immutable;
 no Moose;
 
 sub install_cache_attr {
-    my ($self, $caller) = @_;
+    my ($self, $args) = @_;
 
-    my $name = $self->cache_name;
-    my $meta = $caller->meta;
+    my $name = $args->{cache_name};
+    my $class = $args->{package};
+    my $meta = $class->meta;
     $meta->add_attribute($name => (
         is => 'rw',
         isa => 'Cache::Memcached',
@@ -51,8 +46,8 @@ sub install_cache_attr {
 }
 
 sub build_cache_incr_method {
-    my $self = shift;
-    my $name = $self->cache_name;
+    my ($self, $args) = @_;
+    my $name = $args->{cache_name};
     return Moose::Meta::Method->wrap(
         name => 'cache_incr',
         package_name => ref $self,
@@ -60,11 +55,13 @@ sub build_cache_incr_method {
             my ($self, $key) = @_;
             my $cache = $self->$name;
             if ($self->cache_disabled || ! $cache) {
-                $self->cache_debug("cache_incr: Cache disabled");
+                if (DEBUG) {
+                    $self->cache_debug("cache_incr: Cache disabled");
+                }
                 return ();
             }
 
-            my $keygen = $self->key_generator;
+            my $keygen = $self->cache_key_generator;
             my $cache_key = $keygen ? $keygen->generate($key) : $key;
             return $cache->incr($cache_key);
         }
@@ -72,8 +69,8 @@ sub build_cache_incr_method {
 }
 
 sub build_cache_decr_method {
-    my $self = shift;
-    my $name = $self->cache_name;
+    my ($self, $args) = @_;
+    my $name = $args->{cache_name};
     return Moose::Meta::Method->wrap(
         name => 'cache_decr',
         package_name => ref $self,
@@ -81,11 +78,13 @@ sub build_cache_decr_method {
             my ($self, $key) = @_;
             my $cache = $self->$name;
             if ($self->cache_disabled || ! $cache) {
-                $self->cache_debug("cache_decr: Cache disabled");
+                if (DEBUG) {
+                    $self->cache_debug("cache_decr: Cache disabled");
+                }
                 return ();
             }
 
-            my $keygen = $self->key_generator;
+            my $keygen = $self->cache_key_generator;
             my $cache_key = $keygen ? $keygen->generate($key) : $key;
             return $cache->decr($cache_key);
         }
@@ -93,8 +92,8 @@ sub build_cache_decr_method {
 }
 
 sub build_cache_get_multi_method {
-    my $self = shift;
-    my $name = $self->cache_name;
+    my ($self, $args) = @_;
+    my $name = $args->{cache_name};
     return Moose::Meta::Method->wrap(
         name => 'cache_get_multi',
         package_name => ref $self,
@@ -102,11 +101,13 @@ sub build_cache_get_multi_method {
             my ($self, @keys) = @_;
             my $cache = $self->$name;
             if ($self->cache_disabled || ! $cache) {
-                $self->cache_debug("cache_get_multi: Cache disabled");
+                if (DEBUG) {
+                    $self->cache_debug("cache_get_multi: Cache disabled");
+                }
                 return ();
             }
 
-            my $keygen = $self->key_generator;
+            my $keygen = $self->cache_key_generator;
 
             my @cache_keys = $keygen ? 
                 map { $keygen->generate($_) } @keys :
@@ -122,94 +123,6 @@ sub build_cache_get_multi_method {
                 }
             }
             return @cache_ret{ @cache_keys };
-        }
-    );
-}
-
-sub build_cache_get_method {
-    my $self = shift;
-    my $name = $self->cache_name;
-    return Moose::Meta::Method->wrap(
-        name => 'cache_get',
-        package_name => ref $self,
-        body => sub {
-            my ($self, $key) = @_;
-            my $cache = $self->$name;
-            if ($self->cache_disabled || ! $cache) {
-                $self->cache_debug("cache_get: Cache disabled");
-                return ();
-            }
-
-            my $keygen = $self->key_generator;
-            my $cache_key = $keygen ? $keygen->generate($key) : $key;
-            my $cache_ret =  $cache->get($cache_key);
-            if (DEBUG) {
-                $self->cache_debug(
-                    "cache_get: ",
-                    defined $cache_ret ? "[HIT]" : "[MISS]",
-                    "key =", ($cache_key || '(null)'),
-                );
-            }
-            return $cache_ret;
-        }
-    );
-}
-
-sub build_cache_set_method {
-    my $self = shift;
-    my $name = $self->cache_name;
-    return Moose::Meta::Method->wrap(
-        name => 'cache_set',
-        package_name => ref $self,
-        body => sub {
-            my ($self, $key, $value, $expire) = @_;
-            my $cache = $self->$name;
-            if ($self->cache_disabled || ! $cache) {
-                if (DEBUG) {
-                    $self->cache_debug("cache_set: Cache disabled");
-                }
-                return ();
-            }
-
-            my $keygen = $self->key_generator;
-            my $cache_key = $keygen ? $keygen->generate($key) : $key;
-            if (DEBUG) {
-                $self->cache_debug(
-                    "cache_set: key =",
-                    ($cache_key || '(null)'),
-                    ", value =",
-                    ($value || '(null)'),
-                    ", expire =",
-                    ($expire || '(null)')
-                );
-            }
-            return $cache->set($cache_key, $value, $expire);
-        }
-    );
-}
-
-sub build_cache_del_method {
-    my $self = shift;
-    my $name = $self->cache_name;
-    return Moose::Meta::Method->wrap(
-        name => 'cache_del',
-        package_name => ref $self,
-        body => sub {
-            my ($self, $key) = @_;
-            my $cache = $self->$name;
-            if (! $cache) {
-                return ();
-            }
-
-            my $keygen = $self->key_generator;
-            my $cache_key = $keygen ? $keygen->generate($key) : $key;
-            if (DEBUG) {
-                $self->cache_debug(
-                    "cache_del: key =",
-                    ($cache_key || '(null)'),
-                );
-            }
-            return $cache->delete($cache_key);
         }
     );
 }
