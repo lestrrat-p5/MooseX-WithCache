@@ -1,4 +1,4 @@
-# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache/Backend/Cache/Memcached.pm 98660 2009-01-16T08:37:55.393178Z daisuke  $
+# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache/Backend/Cache/Memcached.pm 101159 2009-02-23T12:27:42.690761Z daisuke  $
 
 package MooseX::WithCache::Backend::Cache::Memcached;
 use Moose;
@@ -122,7 +122,25 @@ sub build_cache_get_multi_method {
                     );
                 }
             }
-            return @cache_ret{ @cache_keys };
+
+            # in scalar context, returns a hashref
+            # {
+            #    results => \%results,
+            #    missing => \@keys
+            # }
+            my $wantarray = wantarray;
+            if ($wantarray) {
+                return map { $cache_ret{$_} }
+                    grep { exists $cache_ret{$_} } @cache_keys;
+            } elsif (defined $wantarray) {
+                return {
+                    results => {
+                        map {($keys[$_] => $cache_ret{$cache_keys[$_]}) } 
+                        grep { exists $cache_ret{$cache_keys[$_]} } (0..$#keys)
+                    },
+                    missing => [ map { $keys[$_] } grep { ! exists $cache_ret{$cache_keys[$_]} } (0..$#keys) ]
+                }
+            }
         }
     );
 }
@@ -155,11 +173,21 @@ MooseX::WithCache::Backend::Cache::Memcached - Cache::Memcached Backend
     $obj->cache_incr($key);
     $obj->cache_decr($key);
 
-    # Be careful! 
-    #    1. this returns a list!
-    #    2. this method is NOT finalized.
-    #       its semantics /MIGHT/ be changed!
+    # In list context: returns the list of gotten results
     my @list = $obj->cache_get_multi(@keys);
+
+    # In scalar context: returns a hashref with cached results,
+    # and missing keys
+    my $h = $obj->cache_get_multi(@keys);
+
+    # {
+    #   results => {
+    #       key1 => $cache_hit_value1,
+    #       key2 => $cache_hit_value2,
+    #       ...
+    #   },
+    #   missing => [ 'key3', 'key4', 'key5' .... ]
+    # }
 
 =head1 METHODS
 

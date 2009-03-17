@@ -1,10 +1,10 @@
-# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache.pm 98665 2009-01-16T08:55:20.144077Z daisuke  $
+# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache.pm 102489 2009-03-17T08:23:48.385672Z daisuke  $
 
 package MooseX::WithCache;
 use Moose;
 use Moose::Exporter;
 use 5.008;
-our $VERSION   = '0.00002';
+our $VERSION   = '0.00003';
 our $AUTHORITY = 'cpan:DMAKI';
 
 Moose::Exporter->setup_import_methods(
@@ -107,7 +107,7 @@ the cache_disabled() attribute that gets installed
 =head2 DEBUG OUTPUT
 
 You can inspect what's going on with respect to the cache, if you specify
-MOOSEX_CACHE_DEBUG=1 in the environment. This will caue MooseX::WithCache to
+MOOSEX_WITHCACHE_DEBUG=1 in the environment. This will caue MooseX::WithCache to
 display messages to STDERR.
 
 =head2 KEY GENERATION

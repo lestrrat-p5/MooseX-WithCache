@@ -21,7 +21,7 @@ BEGIN
         if ( $@ ) {
             plan(skip_all => "no memcached client found");
         } else {
-            plan(tests => 22);
+            plan(tests => 27);
         }
     } else {
         plan(skip_all => "no memcached server found");
@@ -137,5 +137,19 @@ BEGIN
             is( scalar @ret, scalar @keys, "got the same number of values" );
             is_deeply( \@ret, [ @data{@keys} ], "data validates" );
         } "get_multi";
+
+        lives_and {
+            my @keys = keys %data;
+            push @keys, 'missing';
+            my @ret  = $object->cache_get_multi(@keys);
+
+            is( scalar @ret, scalar @keys - 1, "got the less results than requested" );
+            is_deeply( \@ret, [ @data{ keys %data } ], "data validates" );
+
+            my $ret  = $object->cache_get_multi(@keys);
+            is( scalar keys(%{$ret->{results}}) + 1, scalar @keys, "got the less results than requested" );
+            is_deeply( $ret->{results}, \%data, "data validates" );
+            is_deeply( $ret->{missing}, [ 'missing' ], "missing key validates" );
+        } "get_multi with missing keys";
     }
 }

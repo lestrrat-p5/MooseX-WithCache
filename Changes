@@ -1,6 +1,10 @@
 Changes
 =======
 
+0.00003 - 17 Mar 2009
+    * Add FastMmap backend (Taro Funaki)
+    * Implement get_multi
+
 0.00002 - 16 Jan 2009
     * Refactor backend so that it doesn't hold wasteful attributes.
     * Add CHI backend.
