@@ -1,6 +1,9 @@
 Changes
 =======
 
+0.00004 - 18 Mar 2009
+    * Grr, forgot to update MANIFEST
+
 0.00003 - 17 Mar 2009
     * Add FastMmap backend (Taro Funaki)
     * Implement get_multi

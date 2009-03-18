@@ -1,10 +1,10 @@
-# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache.pm 102489 2009-03-17T08:23:48.385672Z daisuke  $
+# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache.pm 102519 2009-03-18T12:01:10.739575Z daisuke  $
 
 package MooseX::WithCache;
 use Moose;
 use Moose::Exporter;
 use 5.008;
-our $VERSION   = '0.00003';
+our $VERSION   = '0.00004';
 our $AUTHORITY = 'cpan:DMAKI';
 
 Moose::Exporter->setup_import_methods(
