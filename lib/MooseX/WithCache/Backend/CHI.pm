@@ -1,4 +1,4 @@
-# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache/Backend/CHI.pm 98638 2009-01-16T05:41:09.754236Z daisuke  $
+# $Id: CHI.pm 28485 2009-01-16 05:41:09Z daisuke $
 
 package MooseX::WithCache::Backend::CHI;
 use Moose;

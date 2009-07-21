@@ -1,4 +1,4 @@
-# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache/KeyGenerator/DumpChecksum.pm 88178 2008-10-16T07:50:55.595631Z daisuke  $
+# $Id: DumpChecksum.pm 21415 2008-10-16 07:50:55Z daisuke $
 
 package MooseX::WithCache::KeyGenerator::DumpChecksum;
 use Moose;

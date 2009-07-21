@@ -4,6 +4,8 @@ use Test::Exception;
 use IO::Socket::INET;
 use Moose::Meta::Class;
 
+our @MEMDTYPES;
+
 {
     package Hoge;
     use MooseX::WithCache;
@@ -16,19 +18,29 @@ BEGIN
         PeerAddr => '127.0.0.1',
     );
 
-    if ($socket) {
-        eval { require Cache::Memcached };
-        if ( $@ ) {
-            plan(skip_all => "no memcached client found");
-        } else {
-            plan(tests => 27);
-        }
-    } else {
+    if (! $socket) {
         plan(skip_all => "no memcached server found");
+    } else {
+        my $tests = 0;
+        foreach my $class qw(Cache::Memcached Cache::Memcached::Fast Cache::memcached::libmemcached) {
+            eval "require $class";
+            next if $@;
+
+            diag("found $class...");
+            $tests += 27;
+            push @MEMDTYPES, $class;
+        }
+
+        if (! @MEMDTYPES) {
+            plan(skip_all => "No memcached client found");
+        } else {
+            plan(tests => $tests);
+        }
     }
 }
 
-{
+foreach my $memd (@MEMDTYPES) {
+    diag("testig with $memd...");
     my $class = Moose::Meta::Class->create_anon_class(
         superclasses => [ 'Moose::Object' ]
     );
@@ -36,7 +48,7 @@ BEGIN
     MooseX::WithCache::with_cache($class->name, 'cache', backend => 'Cache::Memcached');
 
     my $object = $class->new_object(
-        cache => Cache::Memcached->new({
+        cache => $memd->new({
             servers => [ '127.0.0.1:11211' ],
             namespace => join('.', rand(), time, $$, {}),
         }),

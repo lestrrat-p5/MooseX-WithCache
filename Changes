@@ -1,6 +1,9 @@
 Changes
 =======
 
+0.00005 - 21 Jul 2009
+    * Allow other types of memcached clients
+
 0.00004 - 18 Mar 2009
     * Grr, forgot to update MANIFEST
 

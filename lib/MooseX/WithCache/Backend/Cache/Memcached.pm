@@ -1,7 +1,8 @@
-# $Id: /mirror/coderepos/lang/perl/MooseX-WithCache/trunk/lib/MooseX/WithCache/Backend/Cache/Memcached.pm 101159 2009-02-23T12:27:42.690761Z daisuke  $
+# $Id: Memcached.pm 34513 2009-07-21 03:19:23Z daisuke $
 
 package MooseX::WithCache::Backend::Cache::Memcached;
 use Moose;
+use Moose::Util::TypeConstraints;
 use Cache::Memcached;
 use constant DEBUG => $ENV{MOOSEX_WITHCACHE_DEBUG};
 
@@ -29,9 +30,14 @@ has 'cache_decr_method' => (
     isa => 'Moose::Meta::Method',
 );
 
+class_type 'Cache::Memcached';
+class_type 'Cache::Memcached::Fast';
+class_type 'Cache::Memcached::libmemcached';
+
 __PACKAGE__->meta->make_immutable;
 
 no Moose;
+no Moose::Util::TypeConstraints;
 
 sub install_cache_attr {
     my ($self, $args) = @_;
@@ -41,7 +47,7 @@ sub install_cache_attr {
     my $meta = $class->meta;
     $meta->add_attribute($name => (
         is => 'rw',
-        isa => 'Cache::Memcached',
+        isa => 'Cache::Memcached | Cache::Memcached::Fast | Cache::Memcached::libmemcached ',
     ) );
 }
 
