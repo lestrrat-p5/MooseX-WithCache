@@ -21,10 +21,9 @@ BEGIN
 
 {
     my $class = Moose::Meta::Class->create_anon_class(
-        superclasses => [ 'Moose::Object' ]
+        superclasses => [ 'Moose::Object' ],
+        roles => [ 'MooseX::WithCache' => { backend => 'Cache::FastMmap' } ]
     );
-    
-    MooseX::WithCache::with_cache($class->name, 'cache', backend => 'Cache::FastMmap');
 
     my $object = $class->new_object(
         cache => Cache::FastMmap->new,

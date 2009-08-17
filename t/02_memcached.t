@@ -42,11 +42,10 @@ BEGIN
 foreach my $memd (@MEMDTYPES) {
     diag("testig with $memd...");
     my $class = Moose::Meta::Class->create_anon_class(
-        superclasses => [ 'Moose::Object' ]
+        superclasses => [ 'Moose::Object' ],
+        roles        => [ 'MooseX::WithCache' => { backend => 'Cache::Memcached' } ],
     );
     
-    MooseX::WithCache::with_cache($class->name, 'cache', backend => 'Cache::Memcached');
-
     my $object = $class->new_object(
         cache => $memd->new({
             servers => [ '127.0.0.1:11211' ],
