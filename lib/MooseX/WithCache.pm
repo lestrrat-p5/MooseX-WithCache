@@ -102,7 +102,13 @@ MooseX::WithCache - Easy Cache Access From Moose Objects
     my $foo = $object->get_foo();
 
     # if you want to do something with the cache object,
-    # you can access it via the name you gave in with_cache
+    # you can access it via the name you gave in with staemtent
+    # 
+    # with 'MooseX::WithCache' => {
+    #    name => 'cache', # default
+    #    ....
+    # }
+
     my $cache = $object->cache;
 
 =head1 DESCRIPTION
@@ -159,12 +165,6 @@ Simply specify it in the constructor:
         cache => ...,
         cache_key_generator => MooseX::WithCache::KeyGenerator::DumpChecksum->new()
     );
-
-=head1 METHODS
-
-=head2 with_cache($name, %opts)
-
-Configures the cache for the object.
 
 =head1 AUTHOR
 
