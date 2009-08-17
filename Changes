@@ -1,6 +1,9 @@
 Changes
 =======
 
+0.00999_01 - 17 Aug 2009
+    * Use MooseX::Role::Parameterized. This breaks compatibility!
+
 0.00005 - 21 Jul 2009
     * Allow other types of memcached clients
 
