@@ -1,155 +1,108 @@
-# $Id: Memcached.pm 34513 2009-07-21 03:19:23Z daisuke $
 
 package MooseX::WithCache::Backend::Cache::Memcached;
 use Moose;
 use Moose::Util::TypeConstraints;
-use Cache::Memcached;
-use constant DEBUG => $ENV{MOOSEX_WITHCACHE_DEBUG};
 
 extends 'MooseX::WithCache::Backend';
-
-around 'build_method_list' => sub {
-    my ($next, $self, @args) = @_;
-    my $list = $next->($self, @args);
-    push @$list, qw(cache_incr cache_decr cache_get_multi);
-    return $list;
-};
-
-has 'cache_get_multi_method' => (
-    is => 'rw',
-    isa => 'Moose::Meta::Method',
-);
-
-has 'cache_incr_method' => (
-    is => 'rw',
-    isa => 'Moose::Meta::Method',
-);
-
-has 'cache_decr_method' => (
-    is => 'rw',
-    isa => 'Moose::Meta::Method',
-);
 
 class_type 'Cache::Memcached';
 class_type 'Cache::Memcached::Fast';
 class_type 'Cache::Memcached::libmemcached';
 
-__PACKAGE__->meta->make_immutable;
+sub _build_cache_type {
+    return 'Cache::Memcached | Cache::Memcached::Fast | Cache::Memcached::libmemcached ';
+}
+
+around _build_methods => sub {
+    my ($next, $self) = @_;
+    my $methods = $next->($self);
+
+    $methods->{ cache_incr } = sub {
+        my ($self, $key) = @_;
+        my $cache = $self->__get_cache();
+        if ($self->cache_disabled || ! $cache) {
+            if (&MooseX::WithCache::DEBUG) {
+                $self->cache_debug(blessed $self, "cache_incr: Cache disabled");
+            }
+            return ();
+        }
+
+        my $keygen = $self->cache_key_generator;
+        my $cache_key = $keygen ? $keygen->generate($key) : $key;
+        return $cache->incr($cache_key);
+    };
+
+    $methods->{ cache_decr } = sub {
+        my ($self, $key) = @_;
+        my $cache = $self->__get_cache();
+        if ($self->cache_disabled || ! $cache) {
+            if (&MooseX::WithCache::DEBUG) {
+                $self->cache_debug(blessed $self, "cache_decr: Cache disabled");
+            }
+            return ();
+        }
+
+        my $keygen = $self->cache_key_generator;
+        my $cache_key = $keygen ? $keygen->generate($key) : $key;
+        return $cache->decr($cache_key);
+    };
+
+    $methods->{ cache_get_multi } = sub {
+        my ($self, @keys) = @_;
+        my $cache = $self->__get_cache();
+        if ($self->cache_disabled || ! $cache) {
+            if (&MooseX::WithCache::DEBUG) {
+                $self->cache_debug(blessed $self, "cache_get_multi: Cache disabled");
+            }
+            return ();
+        }
+
+        my $keygen = $self->cache_key_generator;
+
+        my @cache_keys = $keygen ? 
+            map { $keygen->generate($_) } @keys :
+            @keys;
+        my %cache_ret = %{ $cache->get_multi(@cache_keys) };
+        if (&MooseX::WithCache::DEBUG) {
+            foreach my $key (@cache_keys) {
+                $self->cache_debug(
+                    blessed $self,
+                    "cache_get_multi:\n",
+                    "     + key =",
+                    ($key || '(null)'),
+                    "\n    + status =",
+                    exists $cache_ret{$key} ? "[HIT]" : "[MISS]",
+                );
+            }
+        }
+
+        # in scalar context, returns a hashref
+        # {
+        #    results => \%results,
+        #    missing => \@keys
+        # }
+        my $wantarray = wantarray;
+        if ($wantarray) {
+            return map { $cache_ret{$_} }
+                grep { exists $cache_ret{$_} } @cache_keys;
+        } elsif (defined $wantarray) {
+            return {
+                results => {
+                    map {($keys[$_] => $cache_ret{$cache_keys[$_]}) } 
+                    grep { exists $cache_ret{$cache_keys[$_]} } (0..$#keys)
+                },
+                missing => [ map { $keys[$_] } grep { ! exists $cache_ret{$cache_keys[$_]} } (0..$#keys) ]
+            }
+        }
+    };
+
+    return $methods;
+};
 
 no Moose;
 no Moose::Util::TypeConstraints;
 
-sub install_cache_attr {
-    my ($self, $args) = @_;
-
-    my $name = $args->{cache_name};
-    my $class = $args->{package};
-    my $meta = $class->meta;
-    $meta->add_attribute($name => (
-        is => 'rw',
-        isa => 'Cache::Memcached | Cache::Memcached::Fast | Cache::Memcached::libmemcached ',
-    ) );
-}
-
-sub build_cache_incr_method {
-    my ($self, $args) = @_;
-    my $name = $args->{cache_name};
-    return Moose::Meta::Method->wrap(
-        name => 'cache_incr',
-        package_name => ref $self,
-        body => sub {
-            my ($self, $key) = @_;
-            my $cache = $self->$name;
-            if ($self->cache_disabled || ! $cache) {
-                if (DEBUG) {
-                    $self->cache_debug("cache_incr: Cache disabled");
-                }
-                return ();
-            }
-
-            my $keygen = $self->cache_key_generator;
-            my $cache_key = $keygen ? $keygen->generate($key) : $key;
-            return $cache->incr($cache_key);
-        }
-    );
-}
-
-sub build_cache_decr_method {
-    my ($self, $args) = @_;
-    my $name = $args->{cache_name};
-    return Moose::Meta::Method->wrap(
-        name => 'cache_decr',
-        package_name => ref $self,
-        body => sub {
-            my ($self, $key) = @_;
-            my $cache = $self->$name;
-            if ($self->cache_disabled || ! $cache) {
-                if (DEBUG) {
-                    $self->cache_debug("cache_decr: Cache disabled");
-                }
-                return ();
-            }
-
-            my $keygen = $self->cache_key_generator;
-            my $cache_key = $keygen ? $keygen->generate($key) : $key;
-            return $cache->decr($cache_key);
-        }
-    );
-}
-
-sub build_cache_get_multi_method {
-    my ($self, $args) = @_;
-    my $name = $args->{cache_name};
-    return Moose::Meta::Method->wrap(
-        name => 'cache_get_multi',
-        package_name => ref $self,
-        body => sub {
-            my ($self, @keys) = @_;
-            my $cache = $self->$name;
-            if ($self->cache_disabled || ! $cache) {
-                if (DEBUG) {
-                    $self->cache_debug("cache_get_multi: Cache disabled");
-                }
-                return ();
-            }
-
-            my $keygen = $self->cache_key_generator;
-
-            my @cache_keys = $keygen ? 
-                map { $keygen->generate($_) } @keys :
-                @keys;
-            my %cache_ret = %{ $cache->get_multi(@cache_keys) };
-            if (DEBUG) {
-                foreach my $key (@cache_keys) {
-                    $self->cache_debug(
-                        "cache_get_multi: ",
-                        exists $cache_ret{$key} ? "[HIT]" : "[MISS]",
-                        "key =", ($key || '(null)'),
-                    );
-                }
-            }
-
-            # in scalar context, returns a hashref
-            # {
-            #    results => \%results,
-            #    missing => \@keys
-            # }
-            my $wantarray = wantarray;
-            if ($wantarray) {
-                return map { $cache_ret{$_} }
-                    grep { exists $cache_ret{$_} } @cache_keys;
-            } elsif (defined $wantarray) {
-                return {
-                    results => {
-                        map {($keys[$_] => $cache_ret{$cache_keys[$_]}) } 
-                        grep { exists $cache_ret{$cache_keys[$_]} } (0..$#keys)
-                    },
-                    missing => [ map { $keys[$_] } grep { ! exists $cache_ret{$cache_keys[$_]} } (0..$#keys) ]
-                }
-            }
-        }
-    );
-}
+__PACKAGE__->meta->make_immutable;
 
 1;
 

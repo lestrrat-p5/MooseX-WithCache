@@ -5,7 +5,7 @@ name('MooseX-WithCache');
 all_from('lib/MooseX/WithCache.pm');
 
 requires('Moose', '0.59');
-requires('Moose::Exporter');
+requires('MooseX::Role::Parameterized');
 requires('Cache::Memcached');
 requires('Data::Dumper');
 requires('Digest::MD5');

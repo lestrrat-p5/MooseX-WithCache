@@ -1,38 +1,68 @@
-# $Id: WithCache.pm 31342 2009-03-18 12:01:10Z daisuke $
 
 package MooseX::WithCache;
-use Moose;
-use Moose::Exporter;
+use MooseX::Role::Parameterized;
 use 5.008;
-our $VERSION   = '0.00005';
+use constant DEBUG => $ENV{MOOSEX_WITHCACHE_DEBUG} ? 1 : 0;
+our $VERSION   = '0.00999_01';
 our $AUTHORITY = 'cpan:DMAKI';
-
-Moose::Exporter->setup_import_methods(
-    with_caller => [ 'with_cache' ]
-);
-
-no Moose;
-no Moose::Exporter;
-
 my %BACKENDS;
 
-sub with_cache {
-    my ($caller, $name, %args) = @_;
+parameter backend => (
+    isa => 'Str',
+    required => 1,
+    default => 'Cache::Memcached',
+);
 
-    # backend is the actual cache backend. this is the main guy that
-    # does the cache-aware  meta protocol munging.
-    # we
-    my $backend_class = $args{backend} || 'Cache::Memcached';
-    my $module = "MooseX::WithCache::Backend::$backend_class";
+parameter name => (
+    isa => 'Str',
+    required => 1,
+    default => 'cache'
+);
 
-    my $backend = $BACKENDS{ $module };
-    if (! $backend) {
-        Class::MOP::load_class($module);
-        $backend = $module->new();
-        $BACKENDS{ $module } = $backend;
+role {
+    my $p = shift;
+
+    my $name          = $p->name;
+    my $backend_class = $p->backend;
+
+    if ($backend_class !~ s/^\+//) {
+        $backend_class = "MooseX::WithCache::Backend::$backend_class";
     }
-    $backend->setup({ %args, cache_name => $name, package => $caller });
-}
+    Class::MOP::load_class($backend_class);
+    my $backend = $BACKENDS{ $backend_class };
+    if (! $backend ) {
+        $backend = $backend_class->new();
+        $BACKENDS{ $backend_class } = $backend;
+    }
+
+    has $name => (
+        is => 'rw',
+        isa => $backend->cache_type(),
+    );
+
+    has cache_disabled => (
+        is => 'rw',
+        isa => 'Bool',
+        default => 0
+    );
+
+    # key generator generates the appropriate cache key from given key(s). 
+    has cache_key_generator => (
+        is      => 'rw',
+        does    => 'MooseX::WithCache::KeyGenerator',
+    );
+
+    method __get_cache => sub { $_[0]->$name };
+    method cache_debug => sub {
+        my $self = shift;
+        print STDERR "[CACHE]: @_\n";
+    };
+
+    my $methods = $backend->methods();
+    while (my($method, $code) = each %$methods) {
+        method $method, $code;
+    }
+};
 
 1;
 
@@ -48,7 +78,7 @@ MooseX::WithCache - Easy Cache Access From Moose Objects
     use Moose;
     use MooseX::WithCache;
 
-    with_cache 'cache' => (
+    with 'MooseX::WithCache' => {
         backend => 'Cache::Memcached',
     );
 

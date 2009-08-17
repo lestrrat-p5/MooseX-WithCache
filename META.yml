@@ -25,8 +25,8 @@ requires:
   Data::Dumper: 0
   Digest::MD5: 0
   Moose: 0.59
-  Moose::Exporter: 0
+  MooseX::Role::Parameterized: 0
   perl: 5.8.0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.00005
+version: 0.00999_01
