@@ -5,13 +5,19 @@ use Moose::Util::TypeConstraints;
 
 extends 'MooseX::WithCache::Backend';
 
-class_type 'Cache::Memcached';
-class_type 'Cache::Memcached::Fast';
-class_type 'Cache::Memcached::libmemcached';
+foreach my $class qw(Cache::Memcached Cache::Memcached::Fast Cache::Memcached::libmemcached) {
+    class_type $class;
+    coerce $class 
+        => from 'HashRef'
+        => via { $class->new($_) }
+    ;
+}
 
 sub _build_cache_type {
     return 'Cache::Memcached | Cache::Memcached::Fast | Cache::Memcached::libmemcached ';
 }
+
+has '+can_coerce' => ( default => 1 );
 
 around _build_methods => sub {
     my ($next, $self) = @_;

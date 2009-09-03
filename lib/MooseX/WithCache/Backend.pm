@@ -13,6 +13,12 @@ has cache_type => (
     lazy_build => 1,
 );
 
+has can_coerce => (
+    is => 'ro',
+    isa => 'Bool',
+    default => 0
+);
+
 has methods => (
     is => 'ro',
     isa => 'HashRef',
