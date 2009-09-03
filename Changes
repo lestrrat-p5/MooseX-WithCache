@@ -1,11 +1,16 @@
 Changes
 =======
 
+0.00999_03 - 03 Sep 2009
+    * Allow coercing from hash to Cache::Memcached objects
+
 0.00999_02 - 20 Aug 2009
     * Makefile.PL tweaks.
 
 0.00999_01 - 17 Aug 2009
-    * Use MooseX::Role::Parameterized. This breaks compatibility!
+    * Use MooseX::Role::Parameterized.
+    * This breaks compatibility, if you were digging through WithCache's
+      internal API
 
 0.00005 - 21 Jul 2009
     * Allow other types of memcached clients

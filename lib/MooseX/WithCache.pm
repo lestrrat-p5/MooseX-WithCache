@@ -3,7 +3,7 @@ package MooseX::WithCache;
 use MooseX::Role::Parameterized;
 use 5.008;
 use constant DEBUG => $ENV{MOOSEX_WITHCACHE_DEBUG} ? 1 : 0;
-our $VERSION   = '0.00999_02';
+our $VERSION   = '0.00999_03';
 our $AUTHORITY = 'cpan:DMAKI';
 my %BACKENDS;
 
@@ -38,6 +38,7 @@ role {
     has $name => (
         is => 'rw',
         isa => $backend->cache_type(),
+        coerce => $backend->can_coerce(),
     );
 
     has cache_disabled => (
