@@ -7,6 +7,26 @@ our $VERSION   = '0.00999_03';
 our $AUTHORITY = 'cpan:DMAKI';
 my %BACKENDS;
 
+# This is solely for backwards compatibility
+use Moose::Exporter;
+Moose::Exporter->setup_import_methods(
+    with_caler => [ 'with_cache' ],
+);
+
+sub with_cache {
+    my ($caller, $name, %args) = @_;
+
+    Carp::carp("use of with_cache for MooseX::WithCache is now deprecated. Use parameterized roles directly");
+
+    Moose::Util::apply_all_roles(
+        $caller,
+        __PACKAGE__, {
+            %args,
+            name => $name,
+        }
+    );
+}
+
 parameter backend => (
     isa => 'Str',
     required => 1,
