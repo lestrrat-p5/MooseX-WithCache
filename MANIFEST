@@ -23,3 +23,7 @@ t/03_chi.t
 t/04_fastmmap.t
 t/99_pod-coverage.t
 t/99_pod.t
+t/deprecated/00_compile.t
+t/deprecated/02_memcached.t
+t/deprecated/03_chi.t
+t/deprecated/04_fastmmap.t

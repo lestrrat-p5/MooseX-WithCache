@@ -22,4 +22,5 @@ if (! $@ && defined $MooseX::WithCache::VERSION && $MooseX::WithCache::VERSION <
     }
 }
 
+tests( 't/*.t t/*/*.t' );
 WriteAll;
