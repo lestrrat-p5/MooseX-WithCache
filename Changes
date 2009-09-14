@@ -1,6 +1,9 @@
 Changes
 =======
 
+0.00999_04 - 14 Sep 2009
+    * Implement backwarnds compatible with_cache() method
+
 0.00999_03 - 03 Sep 2009
     * Allow coercing from hash to Cache::Memcached objects
 
