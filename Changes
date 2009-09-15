@@ -1,6 +1,9 @@
 Changes
 =======
 
+0.01000 - 15 Sep 2009
+    * Bump version number
+
 0.00999_04 - 14 Sep 2009
     * Implement backwarnds compatible with_cache() method
 
