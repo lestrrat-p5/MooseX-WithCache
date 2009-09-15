@@ -3,7 +3,7 @@ package MooseX::WithCache;
 use MooseX::Role::Parameterized;
 use 5.008;
 use constant DEBUG => $ENV{MOOSEX_WITHCACHE_DEBUG} ? 1 : 0;
-our $VERSION   = '0.00999_04';
+our $VERSION   = '0.01000';
 our $AUTHORITY = 'cpan:DMAKI';
 my %BACKENDS;
 
