@@ -1,6 +1,9 @@
 Changes
 =======
 
+0.01001 - 18 Sep 2009
+    * Stupid typo caused with_cache() to not work for backward compatibility
+
 0.01000 - 15 Sep 2009
     * Bump version number
 
