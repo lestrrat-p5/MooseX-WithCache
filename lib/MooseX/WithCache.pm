@@ -1,16 +1,16 @@
 
 package MooseX::WithCache;
-use MooseX::Role::Parameterized;
 use 5.008;
 use constant DEBUG => $ENV{MOOSEX_WITHCACHE_DEBUG} ? 1 : 0;
-our $VERSION   = '0.01000';
+use MooseX::Role::Parameterized;
+our $VERSION   = '0.01001';
 our $AUTHORITY = 'cpan:DMAKI';
 my %BACKENDS;
 
 # This is solely for backwards compatibility
 use Moose::Exporter;
 Moose::Exporter->setup_import_methods(
-    with_caler => [ 'with_cache' ],
+    with_caller => [ 'with_cache' ],
 );
 
 sub with_cache {
