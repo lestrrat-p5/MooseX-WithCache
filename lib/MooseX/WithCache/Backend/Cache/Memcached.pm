@@ -27,7 +27,7 @@ around _build_methods => sub {
         my ($self, $key) = @_;
         my $cache = $self->__get_cache();
         if ($self->cache_disabled || ! $cache) {
-            if (&MooseX::WithCache::DEBUG) {
+            if (MooseX::WithCache::DEBUG()) {
                 $self->cache_debug(blessed $self, "cache_incr: Cache disabled");
             }
             return ();
@@ -42,7 +42,7 @@ around _build_methods => sub {
         my ($self, $key) = @_;
         my $cache = $self->__get_cache();
         if ($self->cache_disabled || ! $cache) {
-            if (&MooseX::WithCache::DEBUG) {
+            if (MooseX::WithCache::DEBUG()) {
                 $self->cache_debug(blessed $self, "cache_decr: Cache disabled");
             }
             return ();
@@ -57,7 +57,7 @@ around _build_methods => sub {
         my ($self, @keys) = @_;
         my $cache = $self->__get_cache();
         if ($self->cache_disabled || ! $cache) {
-            if (&MooseX::WithCache::DEBUG) {
+            if (MooseX::WithCache::DEBUG()) {
                 $self->cache_debug(blessed $self, "cache_get_multi: Cache disabled");
             }
             return ();
@@ -69,7 +69,7 @@ around _build_methods => sub {
             map { $keygen->generate($_) } @keys :
             @keys;
         my %cache_ret = %{ $cache->get_multi(@cache_keys) };
-        if (&MooseX::WithCache::DEBUG) {
+        if (MooseX::WithCache::DEBUG()) {
             foreach my $key (@cache_keys) {
                 $self->cache_debug(
                     blessed $self,

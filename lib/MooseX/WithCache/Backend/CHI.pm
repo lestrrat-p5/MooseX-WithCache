@@ -23,7 +23,7 @@ around _build_methods => sub {
 
         my $keygen = $self->cache_key_generator;
         my $cache_key = $keygen ? $keygen->generate($key) : $key;
-        if (&MooseX::WithCache::DEBUG) {
+        if (MooseX::WithCache::DEBUG()) {
             $self->cache_debug(
                 "cache_del: key =",
                 ($cache_key || '(null)'),
