@@ -20,10 +20,11 @@ use Moose::Meta::Class;
 
 {
     my $class = Moose::Meta::Class->create_anon_class(
-        superclasses => [ 'Moose::Object' ]
+        superclasses => [ 'Moose::Object' ],
+        roles => [
+            'MooseX::WithCache' => { backend => 'CHI' }
+        ],
     );
-    
-    MooseX::WithCache::with_cache($class->name, 'cache', backend => 'CHI');
 
     my $object = $class->new_object(
         cache => CHI->new(

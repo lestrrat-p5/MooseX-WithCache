@@ -19,7 +19,7 @@ around _build_methods => sub {
         my ($self, $key) = @_;
         my $cache = $self->__get_cache();
         if ($self->cache_disabled || ! $cache) {
-            if (&MooseX::WithCache::DEBUG) {
+            if (MooseX::WithCache::DEBUG()) {
                 $self->cache_debug("cache_set: Cache disabled");
             }
             return (); 
@@ -27,7 +27,7 @@ around _build_methods => sub {
 
         my $keygen = $self->cache_key_generator;
         my $cache_key = $keygen ? $keygen->generate($key) : $key;
-        if (&MooseX::WithCache::DEBUG) {
+        if (MooseX::WithCache::DEBUG()) {
             $self->cache_debug(
                 "cache_del: key =",
                 ($cache_key || '(null)'),
@@ -39,7 +39,7 @@ around _build_methods => sub {
         my ($self, $key) = @_;
         my $cache = $self->__get_cache();
         if ($self->cache_disabled || ! $cache) {
-            if (&MooseX::WithCache::DEBUG) {
+            if (MooseX::WithCache::DEBUG()) {
                 $self->cache_debug("cache_incr: Cache disabled");
             }
             return ();
@@ -53,7 +53,7 @@ around _build_methods => sub {
         my ($self, $key) = @_;
         my $cache = $self->__get_cache();
         if ($self->cache_disabled || ! $cache) {
-            if (&MooseX::WithCache::DEBUG) {
+            if (MooseX::WithCache::DEBUG()) {
                 $self->cache_debug("cache_decr: Cache disabled");
             }
             return ();

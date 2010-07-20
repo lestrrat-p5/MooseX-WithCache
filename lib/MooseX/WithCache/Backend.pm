@@ -2,7 +2,7 @@ package MooseX::WithCache::Backend;
 use Moose;
 
 BEGIN {
-    if (&MooseX::WithCache::DEBUG) {
+    if (MooseX::WithCache::DEBUG()) {
         require Data::Dump;
     }
 }
@@ -25,10 +25,6 @@ has methods => (
     lazy_build => 1
 );
 
-__PACKAGE__->meta->make_immutable;
-
-no Moose;
-
 sub _build_cache_type {}
 sub _build_methods {
     return {
@@ -36,7 +32,7 @@ sub _build_methods {
             my ($self, $key) = @_;
             my $cache = $self->__get_cache();
             if ($self->cache_disabled || ! $cache) {
-                if (&MooseX::WithCache::DEBUG) {
+                if (MooseX::WithCache::DEBUG()) {
                     $self->cache_debug(blessed $self, "cache_get: Cache disabled");
                 }
                 return ();
@@ -45,7 +41,7 @@ sub _build_methods {
             my $keygen = $self->cache_key_generator;
             my $cache_key = $keygen ? $keygen->generate($key) : $key;
             my $cache_ret =  $cache->get($cache_key);
-            if (&MooseX::WithCache::DEBUG) {
+            if (MooseX::WithCache::DEBUG()) {
                 $self->cache_debug(
                     blessed $self,
                     "cache_get:\n    + status:",
@@ -62,7 +58,7 @@ sub _build_methods {
             my ($self, $key, $value, $expire) = @_;
             my $cache = $self->__get_cache();
             if ($self->cache_disabled || ! $cache) {
-                if (&MooseX::WithCache::DEBUG) {
+                if (MooseX::WithCache::DEBUG()) {
                     $self->cache_debug(blessed $self, "cache_set: Cache disabled");
                 }
                 return ();
@@ -70,7 +66,7 @@ sub _build_methods {
 
             my $keygen = $self->cache_key_generator;
             my $cache_key = $keygen ? $keygen->generate($key) : $key;
-            if (&MooseX::WithCache::DEBUG) {
+            if (MooseX::WithCache::DEBUG()) {
                 $self->cache_debug(
                     blessed $self, 
                     "cache_set:\n    + key =", (
@@ -79,7 +75,7 @@ sub _build_methods {
                         ) : '(null)' ),
                     "\n    + expire =",
                     ($expire || '(null)'),
-                    &MooseX::WithCache::DEBUG > 1 ? (
+                    MooseX::WithCache::DEBUG() > 1 ? (
                         "\n    + value =",
                         ($value ? Data::Dump::dump($value) : '(null)'),
                     ) : '',
@@ -91,7 +87,7 @@ sub _build_methods {
             my ($self, $key) = @_;
             my $cache = $self->__get_cache();
             if ($self->cache_disabled || ! $cache) {
-                if (&MooseX::WithCache::DEBUG) {
+                if (MooseX::WithCache::DEBUG()) {
                     $self->cache_debug(blessed $self, "cache_del: Cache disabled");
                 }
                 return ();
@@ -99,7 +95,7 @@ sub _build_methods {
 
             my $keygen = $self->cache_key_generator;
             my $cache_key = $keygen ? $keygen->generate($key) : $key;
-            if (&MooseX::WithCache::DEBUG) {
+            if (MooseX::WithCache::DEBUG()) {
                 $self->cache_debug(
                     blessed $self,
                     "cache_del:\n    + key =", (
@@ -112,6 +108,10 @@ sub _build_methods {
         },
     };
 }
+
+__PACKAGE__->meta->make_immutable;
+
+no Moose;
 
 1;
 
