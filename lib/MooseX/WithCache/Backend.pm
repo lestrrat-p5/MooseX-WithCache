@@ -25,10 +25,6 @@ has methods => (
     lazy_build => 1
 );
 
-__PACKAGE__->meta->make_immutable;
-
-no Moose;
-
 sub _build_cache_type {}
 sub _build_methods {
     return {
@@ -112,6 +108,10 @@ sub _build_methods {
         },
     };
 }
+
+__PACKAGE__->meta->make_immutable;
+
+no Moose;
 
 1;
 
