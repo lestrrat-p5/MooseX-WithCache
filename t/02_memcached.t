@@ -22,7 +22,7 @@ BEGIN
         plan(skip_all => "no memcached server found");
     } else {
         my $tests = 0;
-        foreach my $class qw(Cache::Memcached Cache::Memcached::Fast Cache::memcached::libmemcached) {
+        foreach my $class (qw(Cache::Memcached Cache::Memcached::Fast Cache::memcached::libmemcached)) {
             eval "require $class";
             next if $@;
 
@@ -46,7 +46,7 @@ foreach my $memd (@MEMDTYPES) {
         roles        => [ 'MooseX::WithCache' => { backend => 'Cache::Memcached' } ],
     );
 
-    foreach my $cache_build_method qw( object coerce ) {
+    foreach my $cache_build_method (qw( object coerce )) {
         my $object;
 
         if ($cache_build_method eq 'object') {

@@ -5,7 +5,7 @@ use Moose::Util::TypeConstraints;
 
 extends 'MooseX::WithCache::Backend';
 
-foreach my $class qw(Cache::Memcached Cache::Memcached::Fast Cache::Memcached::libmemcached) {
+foreach my $class (qw(Cache::Memcached Cache::Memcached::Fast Cache::Memcached::libmemcached)) {
     class_type $class;
     coerce $class 
         => from 'HashRef'
