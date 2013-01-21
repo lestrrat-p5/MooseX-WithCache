@@ -17,7 +17,7 @@ BEGIN
         plan(skip_all => "no memcached server found");
     } else {
         my $tests = 0;
-        foreach my $class qw(Cache::Memcached Cache::Memcached::Fast Cache::memcached::libmemcached) {
+        foreach my $class (qw(Cache::Memcached Cache::Memcached::Fast Cache::memcached::libmemcached)) {
             eval "require $class";
             next if $@;
 
