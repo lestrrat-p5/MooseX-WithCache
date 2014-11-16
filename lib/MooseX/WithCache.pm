@@ -48,7 +48,7 @@ role {
     if ($backend_class !~ s/^\+//) {
         $backend_class = "MooseX::WithCache::Backend::$backend_class";
     }
-    Class::MOP::load_class($backend_class);
+    Class::Load::load_class($backend_class);
     my $backend = $BACKENDS{ $backend_class };
     if (! $backend ) {
         $backend = $backend_class->new();
