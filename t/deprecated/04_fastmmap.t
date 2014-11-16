@@ -14,7 +14,7 @@ BEGIN
     }
 }
 
-Class::MOP::load_class("MooseX::WithCache");
+Class::Load::load_class("MooseX::WithCache");
 {
     my $class = Moose::Meta::Class->create_anon_class(
         superclasses => [ 'Moose::Object' ]
