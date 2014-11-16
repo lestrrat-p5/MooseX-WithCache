@@ -3,7 +3,7 @@ package MooseX::WithCache;
 use 5.008;
 use constant DEBUG => $ENV{MOOSEX_WITHCACHE_DEBUG} ? 1 : 0;
 use MooseX::Role::Parameterized;
-our $VERSION   = '0.01001';
+our $VERSION   = '0.01004';
 our $AUTHORITY = 'cpan:DMAKI';
 my %BACKENDS;
 
@@ -48,7 +48,7 @@ role {
     if ($backend_class !~ s/^\+//) {
         $backend_class = "MooseX::WithCache::Backend::$backend_class";
     }
-    Class::MOP::load_class($backend_class);
+    Class::Load::load_class($backend_class);
     my $backend = $BACKENDS{ $backend_class };
     if (! $backend ) {
         $backend = $backend_class->new();
