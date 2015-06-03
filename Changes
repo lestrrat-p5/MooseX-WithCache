@@ -1,6 +1,10 @@
 Changes
 =======
 
+0.01002 - 19 Jul 2010
+    * Use parameterized roles in t/03_chi.t
+    * Minor housecleaning
+
 0.01001 - 18 Sep 2009
     * Stupid typo caused with_cache() to not work for backward compatibility
 

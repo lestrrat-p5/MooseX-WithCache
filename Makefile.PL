@@ -22,5 +22,6 @@ if (! $@ && defined $MooseX::WithCache::VERSION && $MooseX::WithCache::VERSION <
     }
 }
 
+author_tests 'xt';
 tests( 't/*.t t/*/*.t' );
 WriteAll;
