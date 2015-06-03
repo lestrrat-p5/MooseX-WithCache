@@ -1,5 +1,8 @@
 Changes
 =======
+0.0105 - 3 Jun 2015
+    * Made compatible to Moose 'Class::MOP::load_class is deprecated'
+    * Fixed syntax errors in 'MooseX::WithCache::Backend::Cache::Memcached
 
 0.01002 - 19 Jul 2010
     * Use parameterized roles in t/03_chi.t

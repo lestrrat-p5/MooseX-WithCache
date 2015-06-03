@@ -4,7 +4,7 @@ use 5.008;
 use constant DEBUG => $ENV{MOOSEX_WITHCACHE_DEBUG} ? 1 : 0;
 use MooseX::Role::Parameterized;
 use Class::Load qw/load_class/;
-our $VERSION   = '0.01003';
+our $VERSION   = '0.01005';
 our $AUTHORITY = 'cpan:DMAKI';
 my %BACKENDS;
 
@@ -110,7 +110,7 @@ MooseX::WithCache - Easy Cache Access From Moose Objects
         my $self = shift;
         my $foo = $self->cache_get( 'foo' );
         if ($foo) {
-            $foo = $self->get_froo_from_database();
+            $foo = $self->get_foo_from_database();
             $self->cache_set(foo => $foo);
         }
         return $foo;
