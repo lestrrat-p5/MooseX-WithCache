@@ -4,7 +4,7 @@ use 5.008;
 use constant DEBUG => $ENV{MOOSEX_WITHCACHE_DEBUG} ? 1 : 0;
 use MooseX::Role::Parameterized;
 use Class::Load qw/load_class/;
-our $VERSION   = '0.01005';
+our $VERSION   = '0.01006';
 our $AUTHORITY = 'cpan:DMAKI';
 my %BACKENDS;
 

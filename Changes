@@ -1,5 +1,8 @@
 Changes
 =======
+0.0106 - 3 Jun 2015
+    * Added compatibility to Cache::FileCache
+
 0.0105 - 3 Jun 2015
     * Made compatible to Moose 'Class::MOP::load_class is deprecated'
     * Fixed syntax errors in 'MooseX::WithCache::Backend::Cache::Memcached
